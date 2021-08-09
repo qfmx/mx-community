@@ -1,0 +1,158 @@
+@startuml
+actor 用户 as user
+participant 系统 as sys
+participant 数据库 as db
+participant redis as redis
+
+user -> sys:提交登陆信息
+activate sys
+    sys -> sys: 校验数据,判断数据规则是否通过
+    group 否
+        sys --> user:请检查输入的信息
+    end
+    sys -> db: 查询用户数据
+    activate db
+    db --> sys: 返回用户信息
+    deactivate db
+    sys -> sys:对比登陆信息
+    sys -> sys:用户信息是否正确
+    alt 正确
+        sys -> redis: 保存token
+          activate redis
+             alt 成功
+                redis --> sys: 返回保存结果
+                deactivate redis
+                alt 成功
+                    sys --> user: 登陆成功
+                else 失败
+                    sys --> user: 登陆失败
+
+                end
+             end
+
+    else 错误
+        user <-- sys: 登陆失败
+    end
+deactivate sys
+@enduml
+
+@startjson
+{"code":200,"msg":"","data":{"total":2,"pageNum":1,"pageSize":10,"firstPage":1,"prePage":0,"nextPage":0,"lastPage":1,"rows":[{"templateCode":"fsafsdf","templateName":"你好呀","roleTotal":2,"userTotal":1,"createTime":"2021-03-26 09:29:00"},{"templateCode":"X20210311","templateName":"飞猪农业","roleTotal":1,"userTotal":7,"createTime":"2021-03-25 15:28:10"}]}}
+@endjson
+
+
+@startyaml
+<style>
+yamlDiagram {
+  node {
+    BackGroundColor lightblue
+    LineColor lightblue
+    FontName Helvetica
+    FontColor red
+    FontSize 18
+    FontStyle bold
+    BackGroundColor Khaki
+    RoundCorner 0
+    LineThickness 2
+    LineStyle 10;5
+    separator {
+      LineThickness 0.5
+      LineColor black
+      LineStyle 1;5
+    }
+  }
+  arrow {
+    BackGroundColor lightblue
+    LineColor green
+    LineThickness 2
+    LineStyle 2;5
+  }
+}
+</style>
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mx-blog?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: josxy
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+logging:
+  level:
+    root: info
+    com_yrp: debug
+server:
+  port: 9420
+@endyaml
+
+@startyaml
+doe: "a deer, a female deer"
+ray: "a drop of golden sun"
+pi: 3.14159
+xmas: true
+french-hens: 3
+calling-birds:
+	- huey
+	- dewey
+	- louie
+	- fred
+xmas-fifth-day:
+	calling-birds: four
+	french-hens: 3
+	golden-rings: 5
+	partridges:
+		count: 1
+		location: "a pear tree"
+	turtle-doves: two
+@endyaml
+
+
+@startyaml
+<style>
+yamlDiagram {
+  node {
+    BackGroundColor lightblue
+    LineColor lightblue
+    FontName Helvetica
+    FontColor red
+    FontSize 18
+    FontStyle bold
+    BackGroundColor Khaki
+    RoundCorner 0
+    LineThickness 2
+    LineStyle 10;5
+    separator {
+      LineThickness 0.5
+      LineColor black
+      LineStyle 1;5
+    }
+  }
+  arrow {
+    BackGroundColor lightblue
+    LineColor green
+    LineThickness 2
+    LineStyle 2;5
+  }
+}
+</style>
+  -
+    name: Mark McGwire
+    hr:   65
+    avg:  0.278
+  -
+    name: Sammy Sosa
+    hr:   63
+    avg:  0.288
+@endyaml
+
+@startuml
+[Prototype design] lasts 15 days
+[Test prototype] lasts 10 days
+
+Project starts 2020-07-01
+[Prototype design] starts 2020-07-01
+[Test prototype] starts 2020-07-16
+@enduml
+

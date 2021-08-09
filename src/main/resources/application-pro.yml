@@ -1,0 +1,41 @@
+# 项目端口
+server:
+  port: 9420
+
+#数据库驱动mysql
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db.timemail.email:3306/mx-blog?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  # thymeleaf
+  thymeleaf:
+    mode: HTML
+  # 国际化
+  messages:
+    basename: i18n/message
+
+#日志打印
+logging:
+  level:
+    root: info
+    cn.allms: debug
+  file:
+    name: log/blog-dev.log
+  config: classpath:logback/logback-spring.xml
+
+#博客头像
+comment:
+  v2exUrl: https://sdn.geekzu.org/avatar/
+  avatar: /images/avatar.png
+
+# 随机图片
+random:
+  pictures:
+    - "https://api.rainss.cn/random.php?t="
+    - "https://api.rainss.cn/acgimgurl/acgurl.php?t="

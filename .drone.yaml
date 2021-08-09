@@ -1,0 +1,76 @@
+kind: pipeline
+type: docker
+name: mx-community
+steps:
+  - name: 构建
+    image: maven:3-jdk-8
+    pull: if-not-exists
+    volumes:
+      - name: maven-cache
+        path: /root/.m2/
+    commands:
+      - df -h
+      - ls /root/.m2
+      - mvn clean package -DskipTests
+    when:
+      branch:
+      - master
+
+  - name: gitea_release
+    image: plugins/gitea-release
+    pull: if-not-exists
+    settings:
+      api_key:
+        from_secret: gitea_token
+      base_url: https://git.rainss.cn
+      files:
+        - target/mx-community-1.0.0-RELEASE.jar
+      checksum:
+        - sha256
+    when:
+      branch:
+      - master
+      event: tag
+
+  - name: 发布
+    image: plugins/docker:latest
+    pull: if-not-exists
+    settings:
+      username:
+        from_secret: docker_user
+      password:
+        from_secret: docker_passwd
+      registry: registry.cn-hangzhou.aliyuncs.com
+      repo: registry.cn-hangzhou.aliyuncs.com/boot-serve/mx-comunity
+      tags: latest
+      dockerfile: Dockerfile
+      build_args:
+        - MX_COMMUNITY=target/*.jar
+    when:
+      branch:
+      - master
+
+  - name: 部署
+    image: appleboy/drone-ssh
+    pull: if-not-exists
+    settings:
+      host:
+        from_secret: host
+      username: 
+        from_secret: user
+      password:
+        from_secret: passwd
+      port: 22
+      script:
+        - if [ -n "`docker ps -q -f "name=mx-community"`" ]; then docker stop `docker ps -q -f "name=mx-community"` && docker rm `docker ps -q -f "name=mx-community"`; fi
+        - if [ -n "`docker container ls -a -q -f "name=mx-community"`" ]; then docker rm `docker container ls -a -q -f "name=mx-community"`; fi
+        - docker pull registry.cn-hangzhou.aliyuncs.com/boot-serve/mx-comunity:latest
+        - pid=`netstat -nlp | grep :80 | awk '{print $7}' | awk -F"/" '{print $1}'` ;if [ -n  "$pid" ]; then kill -9 $pid; fi;
+        - docker run -d  --name mx-community -p 80:9420 registry.cn-hangzhou.aliyuncs.com/boot-serve/mx-comunity:latest
+    when:
+      branch:
+      - master
+volumes:
+  - name: maven-cache
+    host:
+      path: /opt/ci/m2
